@@ -44,7 +44,7 @@ def main():
                     outputs=plot_output
                 )
 
-    iface.launch()
+    iface.launch(share=True)
 
 if __name__ == "__main__":
     main()
