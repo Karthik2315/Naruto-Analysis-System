@@ -4,16 +4,18 @@ import os
 import sys
 import pathlib
 folder_path = pathlib.Path().parent.resolve()
-sys.path.append(str(folder_path.parent))
+sys.path.append(str(folder_path))
 from utils import load_subtitles_dataset
 import pandas as pd
 from ast import literal_eval
-
+import torch
 class NamedEntityRecognizer:
   def __init__(self):
     self.nlp_model = self.load_model()
     
   def load_model(self):
+    if torch.cuda.is_available():
+      spacy.require_gpu()
     nlp = spacy.load("en_core_web_trf")
     return nlp
   
