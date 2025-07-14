@@ -1,8 +1,14 @@
+import os
+os.environ["TRANSFORMERS_NO_TF"] = "1"
 import gradio as gr
 import pandas as pd
 import plotly.express as px
 from theme_classifier import ThemeClassifier
 from character_network import CharacterNetworkGenerator,NamedEntityRecognizer
+from dotenv import load_dotenv
+from text_classification import JutsuClassifier
+
+load_dotenv()
 
 def get_themes(themes_list, subtitles_path, save_path):
     themes_list = themes_list.split(',')
@@ -33,6 +39,12 @@ def get_character_network(subtitles_path,ner_path):
     html = character_network_generator.draw_network_graph(relationship_df)
     
     return html
+
+def classify_text(text_classification_model, text_classification_data_path, text_to_classify):
+    jutsu_classifier = JutsuClassifier(model_path=text_classification_model, data_path=text_classification_data_path,
+                                       huggingface_token = os.getenv('huggingface_token'))
+    output = jutsu_classifier.classify_jutsu(text_to_classify)
+    return output
 
 '''def main():
 # theme classification 
@@ -108,6 +120,24 @@ def main():
                     fn=get_character_network,
                     inputs=[network_subtitles_path_input, ner_path_input],
                     outputs=network_html
+                )
+                
+        gr.Markdown("## Jutsu Classification")
+        
+        # --- Jutsu classification ---
+        with gr.Row():
+            with gr.Column():
+                text_classification_output = gr.Textbox(label="jutsu")
+            with gr.Column():
+                text_classification_model = gr.Textbox(label="model path")
+                text_classification_data_path = gr.Textbox(label="data path")
+                text_to_classify = gr.Textbox(label="Enter the jutsu description")
+                classify_text_button = gr.Button("Jutsu")
+
+                classify_text_button.click(
+                    fn=classify_text,
+                    inputs=[text_classification_model,text_classification_data_path,text_to_classify],
+                    outputs=text_classification_output
                 )
 
     iface.launch()
