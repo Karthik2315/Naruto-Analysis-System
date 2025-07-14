@@ -4,7 +4,7 @@ from transformers import Trainer
 
 class CustomTrainer(Trainer):
   def compute_loss(self, model, inputs, return_outputs=False):
-    labels = inputs.get("labels")
+    labels = inputs.get("labels").to(self.device)
     class_weights = torch.tensor(self.class_weights,dtype=torch.float)
     class_weights = class_weights.to(self.device)
     outputs = model(**inputs)
